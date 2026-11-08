@@ -27,14 +27,14 @@
 - [ ] Cash handover per seller and per vehicle
 - [ ] Parcel (cargo) register
 - [ ] Daily route report
-- [ ] Migration: tr_routes
-- [ ] Migration: tr_vehicles
-- [ ] Migration: tr_drivers
-- [ ] Migration: tr_departures
-- [ ] Migration: tr_tickets
-- [ ] Migration: tr_parcels
-- [ ] Migration: tr_cash_handovers
-- [ ] Unique (departure, seat) so a seat cannot be sold twice
+- [x] Migration: tr_routes
+- [x] Migration: tr_vehicles
+- [x] Migration: tr_drivers
+- [x] Migration: tr_departures
+- [x] Migration: tr_tickets
+- [x] Migration: tr_parcels
+- [x] Migration: tr_cash_handovers
+- [x] Unique (departure, seat) so a seat cannot be sold twice
 - [ ] End-of-day reconciliation: tickets sold vs cash handed over
 
 ## M3: Notifications
@@ -64,7 +64,7 @@
 - [x] Tailwind theme tokens and `next/font` fonts from DESIGN.md
 - [x] `server-only` Data Access Layer in `src/server/dal/`; every Server Action validates with zod and re-checks auth + role
 - [x] Security headers and CSP with nonce (the security guidelines section 5)
-- [ ] Cross-tenant RLS test extended to this product's tables and passing
+- [x] Cross-tenant RLS test extended to this product's tables and passing
 - [x] Playwright screenshot script for 360 px and 1280 px
 - [ ] `npm audit` clean, Dependabot active
 - [ ] Self-audit (the security guidelines section 9) recorded in the dev log
