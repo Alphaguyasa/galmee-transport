@@ -22,11 +22,11 @@
 
 ## M2: Galmee Transport features
 
-- [ ] Ticket sale (route, departure, seat, passenger phone)
-- [ ] Departure board
-- [ ] Cash handover per seller and per vehicle
-- [ ] Parcel (cargo) register
-- [ ] Daily route report
+- [x] Ticket sale (route, departure, seat, passenger phone)
+- [x] Departure board
+- [x] Cash handover per seller and per vehicle
+- [x] Parcel (cargo) register
+- [x] Daily route report
 - [x] Migration: tr_routes
 - [x] Migration: tr_vehicles
 - [x] Migration: tr_drivers
@@ -35,7 +35,7 @@
 - [x] Migration: tr_parcels
 - [x] Migration: tr_cash_handovers
 - [x] Unique (departure, seat) so a seat cannot be sold twice
-- [ ] End-of-day reconciliation: tickets sold vs cash handed over
+- [x] End-of-day reconciliation: tickets sold vs cash handed over
 
 ## M3: Notifications
 
