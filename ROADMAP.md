@@ -1,5 +1,24 @@
 # ROADMAP: Galmee Transport
 
+## M-next: Tier 1 close-out
+
+- [x] App shell: bottom nav + tenant header
+- [x] Wire departures, cash and parcels screens into the shell
+- [x] Reports screen on `tr_route_report`
+- [ ] Ticket SMS: shared sender consumes the `notifications` queue
+- [ ] Galmee design system applied (shared components, tokens, fonts, logo)
+
+## M-after: Tier 2 and 3
+
+- [ ] Offline queue for `tr_sell_ticket` (`client_ref` already idempotent)
+- [ ] Parcel arrival SMS wiring
+- [ ] Route and bus report by Ethiopian month, with CSV export
+- [ ] Owner evening Telegram: takings and shorts per bus
+- [ ] Staff invite and per-seller shortage history
+- [ ] Departure manifest print (passenger list for the driver and road checks)
+
+Out of scope: online seat booking for passengers (sales stay at the window), GPS tracking. The setup screen stays as it is.
+
 ## M0: Foundation (shared pattern for all Galmee products)
 
 - [x] Next.js App Router + TS + Tailwind + shadcn/ui scaffold; `npm run build` passes
@@ -8,14 +27,14 @@
 - [x] Auth: sign up, log in, log out; after first signup call `create_tenant` (vertical `transport`)
 - [x] next-intl with `am`, `om`, `en`; language switcher; Ethiopic-friendly font (Noto Sans Ethiopic)
 - [x] Ethiopian calendar date display helper + tests
-- [ ] App shell: bottom navigation on mobile, sidebar on desktop, tenant name and logo
+- [x] App shell: bottom navigation on mobile, sidebar on desktop, tenant name and logo
 - [ ] Staff management (owner only): invite staff, set role
 - [ ] Generated Supabase TypeScript types committed
 
 ## M1: Core screens
 
 - [ ] Customers: list, search by name/phone, detail with balance
-- [ ] Items and stock (if this product uses stock): list, add, receive stock
+- [x] ~~Items and stock~~ (not used by this product)
 - [ ] Payments and credit: record payment, credit statement
 - [ ] Reports: today / this week / this Ethiopian month; export CSV
 - [ ] Offline queue for the main money action with sync status indicator
