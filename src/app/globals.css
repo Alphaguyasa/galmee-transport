@@ -1,37 +1,72 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is([data-theme="dark"] *));
 
 :root {
-  /* Palette: see docs/DESIGN.md */
-  --livery: #1b3a78; /* dominant: bus livery blue, header bar, primary action */
-  --yard: #f2f3f6; /* page background, the station yard */
-  --ink: #14171f; /* text */
-  --rule: #d4d8e1; /* rules, borders */
-  --roll: #ffb81c; /* amber of the destination roll, on --roll-ground only */
-  --roll-ground: #15171d; /* the dark destination board */
-  --short: #b42318; /* cash short, errors */
+  /*
+   * Galmee design system tokens: see dev-playbook shared/galmee/DESIGN_SYSTEM.md.
+   * Every app sets only --trade (its trade colour); neutrals are mixed from it
+   * so the whole app leans the trade's way. Transport: bus livery blue.
+   */
+  --trade: #1B3A78;
 
-  --radius: 0.375rem;
-  --background: var(--yard);
-  --foreground: var(--ink);
-  --card: #ffffff;
-  --card-foreground: var(--ink);
-  --primary: var(--livery);
-  --primary-foreground: #ffffff;
-  --secondary: #e4e7ee;
-  --secondary-foreground: var(--ink);
-  --muted: #e4e7ee;
-  --muted-foreground: #4a5266;
-  --accent: #dfe6f4;
-  --accent-foreground: #132a58;
-  --destructive: var(--short);
-  --warning: #7a5600;
-  --border: var(--rule);
+  --paper: color-mix(in oklab, var(--trade) 4%, #fdfdfb);
+  --sheet: #ffffff;
+  --ink: color-mix(in oklab, var(--trade) 25%, #16181a);
+  --ink-soft: color-mix(in oklab, var(--trade) 18%, #4d5250);
+  --rule: color-mix(in oklab, var(--trade) 10%, #dcdfdc);
+  --band: color-mix(in oklab, var(--trade) 9%, #f3f4f0);
+
+  /* Semantic, shared family-wide. All AA on paper and sheet. */
+  --money-in: #1a6b43;
+  --owed: #b3261e;
+  --warn: #8f5600;
+  --urgent: var(--owed);
+  --sync: #0b5cad;
+
+  /* Transport's one bold thing: the destination roll, amber on a dark board. */
+  --roll: #ffb81c;
+  --roll-ground: color-mix(in oklab, var(--trade) 12%, #15171d);
   --board: var(--roll-ground);
   --board-foreground: var(--roll);
-  --input: #aab1c2;
-  --ring: var(--livery);
+
+  --radius: 0.375rem;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sheet);
+  --card-foreground: var(--ink);
+  --primary: var(--trade);
+  --primary-foreground: #ffffff;
+  --secondary: var(--band);
+  --secondary-foreground: var(--ink);
+  --muted: var(--band);
+  --muted-foreground: var(--ink-soft);
+  --accent: color-mix(in oklab, var(--trade) 13%, #f0f2ee);
+  --accent-foreground: color-mix(in oklab, var(--trade) 85%, #000000);
+  --destructive: var(--owed);
+  --warning: var(--warn);
+  --border: var(--rule);
+  --input: color-mix(in oklab, var(--trade) 18%, #b5bcb7);
+  --ring: var(--trade);
+}
+
+/* Dark tokens only, behind an attribute nothing sets yet: screens go dark
+ * once each one is audited. Semantic colours lifted to stay AA on dark paper. */
+[data-theme="dark"] {
+  --paper: color-mix(in oklab, var(--trade) 12%, #101211);
+  --sheet: color-mix(in oklab, var(--trade) 16%, #171a18);
+  --ink: #e8eae6;
+  --ink-soft: #b2b8b2;
+  --rule: color-mix(in oklab, var(--trade) 25%, #31352f);
+  --band: color-mix(in oklab, var(--trade) 24%, #1c201d);
+  --money-in: #57c08a;
+  --owed: #ff8d80;
+  --warn: #e0a34e;
+  --sync: #7cb5ec;
+  --primary-foreground: #0c0f0d;
+  --accent: color-mix(in oklab, var(--trade) 32%, #22261f);
+  --accent-foreground: #e8eae6;
+  --input: color-mix(in oklab, var(--trade) 30%, #555c55);
 }
 
 @theme inline {
@@ -50,8 +85,17 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-warning: var(--warning);
+  --color-trade: var(--trade);
+  --color-band: var(--band);
+  --color-money-in: var(--money-in);
+  --color-owed: var(--owed);
+  --color-warn: var(--warn);
+  --color-urgent: var(--urgent);
+  --color-sync: var(--sync);
   --color-board: var(--board);
   --color-board-foreground: var(--board-foreground);
+  --color-shelf: var(--rule);
+  --color-rule: var(--rule);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -79,6 +123,10 @@
     font-size: 1rem;
     line-height: 1.5;
   }
+  /* Ethiopic glyphs are dense and tall: Amharic breathes a little more. */
+  :lang(am) {
+    line-height: 1.65;
+  }
   /* Money, quantities and dates line up in columns. */
   .num {
     font-variant-numeric: tabular-nums;
@@ -90,5 +138,28 @@
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
     }
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(12px);
+    opacity: 0.6;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* 58 mm thermal receipt: ReceiptPreview prints alone, everything else hides. */
+@media print {
+  body:has(.receipt-58) > *:not(:has(.receipt-58)) {
+    display: none !important;
+  }
+  .receipt-58 {
+    width: 58mm;
+    color: #000;
+    background: #fff;
   }
 }

@@ -2,6 +2,11 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { recordHandoverAction, reverseHandoverAction } from "@/actions/transport";
+import { CheckCircle2, CircleAlert, CirclePlus, Wallet } from "lucide-react";
+import { EmptyState } from "@/components/galmee/empty-state";
+import { ListRow, ListSheet } from "@/components/galmee/list-row";
+import { MoneySummaryCard } from "@/components/galmee/money-summary-card";
+import { StatusBadge } from "@/components/galmee/status-badge";
 import { ActionForm } from "@/components/transport/action-form";
 import { DayNav } from "@/components/transport/day-nav";
 import { Input } from "@/components/ui/input";
@@ -23,32 +28,41 @@ export default async function CashPage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="grid gap-4">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <h1 className="text-[1.5625rem] leading-tight font-bold">{t("title")}</h1>
       <DayNav path="/cash" day={day} maxToday />
       {rows.length === 0 ? (
-        <p className="text-muted-foreground">{t("empty")}</p>
+        <EmptyState icon={Wallet} message={t("empty")} />
       ) : (
         <>
-          <p className={`num text-xl font-bold ${short > 0 ? "text-destructive" : ""}`}>
-            {short > 0 ? t("totalShort", { amount: formatBirr(short, locale) }) : t("allIn")}
-          </p>
-          <ul className="grid gap-3 md:grid-cols-2">
+          <MoneySummaryCard
+            tone={short > 0 ? "owed" : "in"}
+            size={short > 0 ? "lg" : "md"}
+            label={short > 0 ? t("short") : t("settled")}
+            figure={short > 0 ? formatBirr(short, locale) : t("allIn")}
+          />
+          <ListSheet className="md:grid md:grid-cols-2 md:divide-y-0">
             {rows.map((r) => {
               const key = r.sellerId ?? r.vehicleId ?? r.label;
               return (
-                <li key={key} className="grid gap-2 rounded-md border bg-card p-3">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate font-bold">{r.label}</span>
-                    <span className="text-sm text-muted-foreground">{t(r.kind)}</span>
+                <li key={key} className="grid gap-2 p-3 md:border-b md:odd:border-r">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="grid min-w-0 gap-0.5">
+                      <span className="truncate font-semibold">{r.label}</span>
+                      <span className="num text-sm text-muted-foreground">
+                        {t(r.kind)} · {t("activity", { tickets: r.tickets, parcels: r.parcels })}
+                      </span>
+                    </div>
+                    {r.short > 0 ? (
+                      <StatusBadge tone="urgent" icon={CircleAlert}>{t("short")} {formatBirr(r.short, locale)}</StatusBadge>
+                    ) : r.short < 0 ? (
+                      <StatusBadge tone="warn" icon={CirclePlus}>{t("over")} {formatBirr(-r.short, locale)}</StatusBadge>
+                    ) : (
+                      <StatusBadge tone="ok" icon={CheckCircle2}>{t("settled")}</StatusBadge>
+                    )}
                   </div>
-                  <p className="num text-sm text-muted-foreground">{t("activity", { tickets: r.tickets, parcels: r.parcels })}</p>
-                  <dl className="num grid grid-cols-3 gap-2 text-sm">
+                  <dl className="num grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-muted-foreground">{t("expected")}</dt><dd className="font-semibold">{formatBirr(r.expected, locale)}</dd></div>
                     <div><dt className="text-muted-foreground">{t("handed")}</dt><dd className="font-semibold">{formatBirr(r.handed, locale)}</dd></div>
-                    <div>
-                      <dt className="text-muted-foreground">{r.short > 0 ? t("short") : r.short < 0 ? t("over") : t("settled")}</dt>
-                      <dd className={`font-semibold ${r.short > 0 ? "text-destructive" : ""}`}>{formatBirr(Math.abs(r.short), locale)}</dd>
-                    </div>
                   </dl>
                   <ActionForm key={r.handed} action={recordHandoverAction} submitLabel={t("record")} doneLabel={t("recorded")} variant="outline" className="grid grid-cols-[1fr_auto] items-center gap-2">
                     <input type="hidden" name="day" value={day} />
@@ -60,32 +74,36 @@ export default async function CashPage({ searchParams }: { searchParams: Promise
                 </li>
               );
             })}
-          </ul>
+          </ListSheet>
         </>
       )}
 
       <section className="grid gap-2">
         <h2 className="text-xl font-bold">{t("handovers")}</h2>
         {handovers.length === 0 ? <p className="text-muted-foreground">{t("noHandovers")}</p> : (
-          <ul>
+          <ListSheet>
             {handovers.map((h) => (
-              <li key={h.id} className={`grid gap-1 border-b py-3 ${h.reversed ? "text-muted-foreground line-through" : ""}`}>
-                <div className="num flex items-baseline justify-between gap-2">
-                  <span className="font-semibold">{h.who}</span>
-                  <span>{formatBirr(h.amount, locale)}</span>
-                </div>
-                {h.note ? <p className="text-sm">{h.note}</p> : null}
-                {h.reversed ? (
-                  <p className="text-sm no-underline">{t("reversed")}</p>
-                ) : (
-                  <ActionForm action={reverseHandoverAction} submitLabel={t("reverse")} variant="outline" className="grid gap-1">
-                    <input type="hidden" name="handover" value={h.id} />
-                    <input type="hidden" name="day" value={day} />
-                  </ActionForm>
-                )}
-              </li>
+              <ListRow
+                key={h.id}
+                className={h.reversed ? "text-muted-foreground" : undefined}
+                title={<span className={h.reversed ? "line-through" : undefined}>{h.who}</span>}
+                right={<span className={`num font-semibold ${h.reversed ? "line-through" : ""}`}>{formatBirr(h.amount, locale)}</span>}
+                sub={
+                  <>
+                    {h.note ? <span>{h.note}</span> : null}
+                    {h.reversed ? (
+                      <span>{t("reversed")}</span>
+                    ) : (
+                      <ActionForm action={reverseHandoverAction} submitLabel={t("reverse")} variant="outline" className="grid gap-1">
+                        <input type="hidden" name="handover" value={h.id} />
+                        <input type="hidden" name="day" value={day} />
+                      </ActionForm>
+                    )}
+                  </>
+                }
+              />
             ))}
-          </ul>
+          </ListSheet>
         )}
       </section>
     </div>

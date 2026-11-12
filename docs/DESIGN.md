@@ -2,6 +2,11 @@
 
 Change this file first, then the code.
 
+> Transport uses the **Galmee design system**. Tokens live in `src/app/globals.css`
+> (only `--trade` and the destination-roll tokens are transport-specific), shared
+> components in `src/components/galmee/`. The colour and type tables below are
+> superseded by the system; the brief, the destination roll and the wireframes stay.
+
 ## Brief
 
 - **Subject:** a bus station office in Shashamane. A window with a paper ticket book, a blue-painted coach outside, a destination roll above the windscreen, a conductor counting notes at dusk.
