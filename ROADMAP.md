@@ -6,7 +6,7 @@
 - [x] Wire departures, cash and parcels screens into the shell
 - [x] Reports screen on `tr_route_report`
 - [ ] Ticket SMS: shared sender consumes the `notifications` queue
-- [ ] Galmee design system applied (shared components, tokens, fonts, logo)
+- [x] Galmee design system applied (shared components, tokens, fonts, logo)
 
 ## M-after: Tier 2 and 3
 

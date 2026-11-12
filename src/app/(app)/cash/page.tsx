@@ -94,7 +94,7 @@ export default async function CashPage({ searchParams }: { searchParams: Promise
                     {h.reversed ? (
                       <span>{t("reversed")}</span>
                     ) : (
-                      <ActionForm action={reverseHandoverAction} submitLabel={t("reverse")} variant="outline" className="grid gap-1">
+                      <ActionForm action={reverseHandoverAction} submitLabel={t("reverse")} variant="outline" className="grid justify-items-start gap-1">
                         <input type="hidden" name="handover" value={h.id} />
                         <input type="hidden" name="day" value={day} />
                       </ActionForm>
