@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { ClipboardList } from "lucide-react";
 import { z } from "zod";
 import { setDepartureStatusAction, voidTicketAction } from "@/actions/transport";
 import { ActionForm } from "@/components/transport/action-form";
 import { Roll } from "@/components/transport/roll";
 import { SaleForm } from "@/components/transport/sale-form";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Locale } from "@/i18n/config";
 import { addisTime } from "@/lib/day";
@@ -26,8 +28,8 @@ export default async function DeparturePage({ params, searchParams }: { params: 
   const [{ id }, { sold }] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
   const soldSeat = z.coerce.number().int().min(1).max(80).safeParse(sold).data;
-  const [found, t, tStatus, tMethods, { profile }, locale] = await Promise.all([
-    getDeparture(id), getTranslations("sale"), getTranslations("departureStatus"), getTranslations("methods"), getSession(), getLocale() as Promise<Locale>,
+  const [found, t, tStatus, tMethods, tManifest, { profile }, locale] = await Promise.all([
+    getDeparture(id), getTranslations("sale"), getTranslations("departureStatus"), getTranslations("methods"), getTranslations("manifest"), getSession(), getLocale() as Promise<Locale>,
   ]);
   if (!found) notFound();
   const { departure: d, tickets } = found;
@@ -72,7 +74,15 @@ export default async function DeparturePage({ params, searchParams }: { params: 
       )}
 
       <section className="grid gap-2">
-        <h2 className="text-xl font-bold">{t("ticketsTitle")}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-bold">{t("ticketsTitle")}</h2>
+          {tickets.length > 0 ? (
+            <Link href={`/departures/${d.id}/manifest`} className={buttonVariants({ variant: "outline" })}>
+              <ClipboardList aria-hidden />
+              {tManifest("open")}
+            </Link>
+          ) : null}
+        </div>
         {tickets.length === 0 ? (
           <p className="text-muted-foreground">{t("noTickets")}</p>
         ) : (

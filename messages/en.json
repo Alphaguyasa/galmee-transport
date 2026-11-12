@@ -255,5 +255,22 @@
     "status": "Status",
     "full": "Full",
     "open": "TV board"
+  },
+  "manifest": {
+    "open": "Passenger list",
+    "title": "Passenger manifest",
+    "back": "Back to departure",
+    "print": "Print",
+    "date": "Date",
+    "time": "Time",
+    "vehicle": "Bus",
+    "driver": "Driver",
+    "seat": "Seat",
+    "passenger": "Passenger",
+    "phone": "Phone",
+    "empty": "No passengers on this departure yet.",
+    "count": "{count} passengers, {seats} seats",
+    "driverSign": "Driver's signature",
+    "officeSign": "Office stamp and signature"
   }
 }

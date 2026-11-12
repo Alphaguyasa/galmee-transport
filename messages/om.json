@@ -255,5 +255,22 @@
     "status": "Haala",
     "full": "Guutameera",
     "open": "Gabatee TV"
+  },
+  "manifest": {
+    "open": "Tarree imaltootaa",
+    "title": "Tarree imaltootaa",
+    "back": "Gara ka'umsaatti deebi'i",
+    "print": "Maxxansi",
+    "date": "Guyyaa",
+    "time": "Sa'aatii",
+    "vehicle": "Awtobisii",
+    "driver": "Konkolaachisaa",
+    "seat": "Teessoo",
+    "passenger": "Imalaa",
+    "phone": "Bilbila",
+    "empty": "Ka'umsa kana irratti imaltoonni ammaaf hin jiran.",
+    "count": "Imaltoota {count}, teessoo {seats}",
+    "driverSign": "Mallattoo konkolaachisaa",
+    "officeSign": "Chaappaa fi mallattoo waajjiraa"
   }
 }

@@ -255,5 +255,22 @@
     "status": "ሁኔታ",
     "full": "ሞልቷል",
     "open": "የቴሌቪዥን ሰሌዳ"
+  },
+  "manifest": {
+    "open": "የተሳፋሪዎች ዝርዝር",
+    "title": "የተሳፋሪዎች ዝርዝር",
+    "back": "ወደ መነሻው ተመለስ",
+    "print": "አትም",
+    "date": "ቀን",
+    "time": "ሰዓት",
+    "vehicle": "አውቶቡስ",
+    "driver": "ሹፌር",
+    "seat": "ወንበር",
+    "passenger": "ተሳፋሪ",
+    "phone": "ስልክ",
+    "empty": "በዚህ መነሻ እስካሁን ተሳፋሪ የለም።",
+    "count": "{count} ተሳፋሪዎች፣ {seats} ወንበሮች",
+    "driverSign": "የሹፌር ፊርማ",
+    "officeSign": "የቢሮ ማህተምና ፊርማ"
   }
 }
