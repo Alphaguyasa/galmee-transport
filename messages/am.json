@@ -244,5 +244,16 @@
     "seatsSold": "ከ{seats} {tickets}",
     "ticketTotal": "ትኬቶች",
     "parcels": "ጭነቶች"
+  },
+  "tvBoard": {
+    "title": "መነሻዎች",
+    "updated": "የታደሰው {time}",
+    "empty": "ዛሬ ሌላ መነሻ የለም።",
+    "time": "ሰዓት",
+    "destination": "መድረሻ",
+    "seatsLeft": "የቀሩ ወንበሮች",
+    "status": "ሁኔታ",
+    "full": "ሞልቷል",
+    "open": "የቴሌቪዥን ሰሌዳ"
   }
 }

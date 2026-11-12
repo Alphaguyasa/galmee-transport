@@ -244,5 +244,16 @@
     "seatsSold": "{seats} keessaa {tickets}",
     "ticketTotal": "Tikeetii",
     "parcels": "Fe'umsa"
+  },
+  "tvBoard": {
+    "title": "Ka'umsa",
+    "updated": "Haaromfame {time}",
+    "empty": "Har'a ka'umsi biraa hin jiru.",
+    "time": "Sa'aatii",
+    "destination": "Gara",
+    "seatsLeft": "Teessoo hafe",
+    "status": "Haala",
+    "full": "Guutameera",
+    "open": "Gabatee TV"
   }
 }

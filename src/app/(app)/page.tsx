@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Bus, CheckCircle2, Clock, DoorOpen, Navigation, XCircle } from "lucide-react";
+import { Bus, CheckCircle2, Clock, DoorOpen, Navigation, Tv, XCircle } from "lucide-react";
 import { EmptyState } from "@/components/galmee/empty-state";
 import { ListSheet } from "@/components/galmee/list-row";
 import { StatusBadge } from "@/components/galmee/status-badge";
@@ -26,7 +26,7 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
   const { day: dayRaw } = await searchParams;
   const day = daySchema.safeParse(dayRaw).data ?? addisToday();
   const locale = (await getLocale()) as Locale;
-  const [t, tStatus, departures, { profile }] = await Promise.all([getTranslations("board"), getTranslations("departureStatus"), listBoard(day), getSession()]);
+  const [t, tStatus, tTv, departures, { profile }] = await Promise.all([getTranslations("board"), getTranslations("departureStatus"), getTranslations("tvBoard"), listBoard(day), getSession()]);
   const canManage = profile.role !== "staff";
 
   return (
@@ -34,7 +34,13 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-[1.5625rem] leading-tight font-bold">{t("title")}</h1>
         {canManage ? (
-          <Link href="/departures/new" className={buttonVariants({ variant: "outline" })}>{t("schedule")}</Link>
+          <div className="flex gap-2">
+            <Link href="/board" className={buttonVariants({ variant: "outline", className: "hidden md:inline-flex" })}>
+              <Tv aria-hidden />
+              {tTv("open")}
+            </Link>
+            <Link href="/departures/new" className={buttonVariants({ variant: "outline" })}>{t("schedule")}</Link>
+          </div>
         ) : null}
       </div>
       <DayNav path="/" day={day} />

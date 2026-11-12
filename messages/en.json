@@ -244,5 +244,16 @@
     "seatsSold": "{tickets} of {seats}",
     "ticketTotal": "Tickets",
     "parcels": "Parcels"
+  },
+  "tvBoard": {
+    "title": "Departures",
+    "updated": "Updated {time}",
+    "empty": "No more departures today.",
+    "time": "Time",
+    "destination": "To",
+    "seatsLeft": "Seats left",
+    "status": "Status",
+    "full": "Full",
+    "open": "TV board"
   }
 }
