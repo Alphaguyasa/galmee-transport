@@ -48,6 +48,8 @@ begin
   select count(*) into n from public.notifications where to_addr='0911000001' and body like '%ወንበር 5%'; r := r || 'sms queued=' || n || ' (expect 1); ';
   begin insert into public.tr_tickets(departure_id,seat,fare) values (da,7,1); ok := true; exception when others then ok := false; end;
   r := r || 'staff direct ticket insert=' || ok || ' (expect false); ';
+  begin insert into public.notifications(channel, to_addr, body) values ('sms', '0911000001', 'free text'); ok := true; exception when others then ok := false; end;
+  r := r || 'staff queues sms directly=' || ok || ' (expect false); ';
   begin update public.tr_tickets set fare=1 where id=t1; get diagnostics n = row_count; exception when others then n := -1; end; r := r || 'staff direct ticket update rows=' || n || ' (expect 0 or -1); ';
   begin perform public.tr_void_ticket(t1,'mistake'); ok := true; exception when others then ok := false; err := sqlerrm; end;
   r := r || 'staff voids=' || ok || ' err=' || err || ' (expect false, not_allowed); ';
