@@ -1,19 +1,29 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { addisToday } from "@/lib/day";
-import { ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, toCsv } from "@/lib/report-month";
+import { addDays, addisToday } from "@/lib/day";
+import { ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, parseWeekEnd, toCsv } from "@/lib/report-month";
 import { busReportRange, routeReportRange } from "@/server/dal/transport";
 import { getSession } from "@/server/dal/session";
 
-/** CSV of the month report: ?kind=routes|buses&month=YYYY-MM (Ethiopian month). Owners and managers only. */
+/** CSV of the period report: ?kind=routes|buses and month=YYYY-MM (Ethiopian month) or end=YYYY-MM-DD (7 days). Owners and managers only. */
 export async function GET(request: Request) {
   const { profile } = await getSession();
   if (profile.role === "staff") redirect("/");
 
   const url = new URL(request.url);
   const kind = url.searchParams.get("kind") === "buses" ? "buses" : "routes";
-  const month = parseMonthParam(url.searchParams.get("month") ?? undefined, ethMonthOf(addisToday()));
-  const { from, to } = ethMonthRange(month);
+  const today = addisToday();
+  const endParam = url.searchParams.get("end");
+  let from: string, to: string, label: string;
+  if (endParam) {
+    to = parseWeekEnd(endParam, today);
+    from = addDays(to, -6);
+    label = `${from}-to-${to}`;
+  } else {
+    const month = parseMonthParam(url.searchParams.get("month") ?? undefined, ethMonthOf(today));
+    ({ from, to } = ethMonthRange(month));
+    label = formatMonthParam(month);
+  }
   const t = await getTranslations("report");
 
   let rows: (string | number | null)[][];
@@ -34,7 +44,7 @@ export async function GET(request: Request) {
   return new Response(toCsv(rows), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="galmee-transport-${kind}-${formatMonthParam(month)}.csv"`,
+      "Content-Disposition": `attachment; filename="galmee-transport-${kind}-${label}.csv"`,
       "Cache-Control": "private, no-store",
     },
   });

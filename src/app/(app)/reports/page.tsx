@@ -4,31 +4,32 @@ import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { DayNav } from "@/components/transport/day-nav";
 import type { Locale } from "@/i18n/config";
-import { addisToday } from "@/lib/day";
-import { ETHIOPIAN_MONTHS } from "@/lib/ethiopian-date";
+import { addDays, addisToday } from "@/lib/day";
+import { ETHIOPIAN_MONTHS, formatEthiopianDate } from "@/lib/ethiopian-date";
 import { formatBirr } from "@/lib/money";
-import { compareEthMonth, ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, shiftEthMonth, type EthMonth } from "@/lib/report-month";
+import { compareEthMonth, ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, parseWeekEnd, shiftEthMonth, type EthMonth } from "@/lib/report-month";
 import { busReportRange, routeReport, routeReportRange, type RouteReportRow } from "@/server/dal/transport";
 import { getSession } from "@/server/dal/session";
 import { daySchema } from "@/server/validation";
 
-type Search = { day?: string; view?: string; month?: string };
+type Search = { day?: string; view?: string; month?: string; end?: string };
 
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const { profile } = await getSession();
   if (profile.role === "staff") redirect("/");
   const params = await searchParams;
   const t = await getTranslations("report");
-  const month = params.view === "month";
+  const view = params.view === "month" || params.view === "week" ? params.view : "day";
 
   return (
     <div className="grid gap-4">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
-      <nav aria-label={t("chooseView")} className="grid grid-cols-2 gap-1 rounded-md border bg-card p-1">
-        <ViewLink href="/reports" active={!month}>{t("viewDay")}</ViewLink>
-        <ViewLink href="/reports?view=month" active={month}>{t("viewMonth")}</ViewLink>
+      <nav aria-label={t("chooseView")} className="grid grid-cols-3 gap-1 rounded-md border bg-card p-1">
+        <ViewLink href="/reports" active={view === "day"}>{t("viewDay")}</ViewLink>
+        <ViewLink href="/reports?view=week" active={view === "week"}>{t("viewWeek")}</ViewLink>
+        <ViewLink href="/reports?view=month" active={view === "month"}>{t("viewMonth")}</ViewLink>
       </nav>
-      {month ? <MonthReport raw={params.month} /> : <DayReport raw={params.day} />}
+      {view === "month" ? <MonthReport raw={params.month} /> : view === "week" ? <WeekReport raw={params.end} /> : <DayReport raw={params.day} />}
     </div>
   );
 }
@@ -61,21 +62,68 @@ async function MonthReport({ raw }: { raw?: string }) {
   const current = ethMonthOf(addisToday());
   const month = parseMonthParam(raw, current);
   const { from, to } = ethMonthRange(month);
+  const locale = (await getLocale()) as Locale;
+  const t = await getTranslations("report");
+  return (
+    <PeriodReport
+      from={from}
+      to={to}
+      exportQuery={`month=${formatMonthParam(month)}`}
+      emptyText={t("emptyMonth")}
+      nav={<MonthNav month={month} current={current} locale={locale} />}
+    />
+  );
+}
+
+async function WeekReport({ raw }: { raw?: string }) {
+  const today = addisToday();
+  const end = parseWeekEnd(raw, today);
+  const from = addDays(end, -6);
+  const [t, locale] = await Promise.all([getTranslations("report"), getLocale() as Promise<Locale>]);
+  const isCurrent = end >= today;
+  const href = (e: string) => `/reports?view=week&end=${e}`;
+  return (
+    <PeriodReport
+      from={from}
+      to={end}
+      exportQuery={`end=${end}`}
+      emptyText={t("emptyWeek")}
+      nav={
+        <nav aria-label={t("viewWeek")} className="flex items-center justify-between gap-2">
+          <Link href={href(addDays(end, -7))} aria-label={t("previousWeek")} className="inline-flex size-12 items-center justify-center rounded-md border bg-card">
+            <ChevronLeft className="size-5" aria-hidden />
+          </Link>
+          <p className="num text-center font-semibold">
+            {formatEthiopianDate(from, locale, { withEra: false })} – {formatEthiopianDate(end, locale)}
+          </p>
+          {isCurrent ? (
+            <span className="size-12" aria-hidden />
+          ) : (
+            <Link href={href(addDays(end, 7) > today ? today : addDays(end, 7))} aria-label={t("nextWeek")} className="inline-flex size-12 items-center justify-center rounded-md border bg-card">
+              <ChevronRight className="size-5" aria-hidden />
+            </Link>
+          )}
+        </nav>
+      }
+    />
+  );
+}
+
+async function PeriodReport({ from, to, exportQuery, emptyText, nav }: { from: string; to: string; exportQuery: string; emptyText: string; nav: React.ReactNode }) {
   const [t, routes, buses, locale] = await Promise.all([
     getTranslations("report"),
     routeReportRange(from, to),
     busReportRange(from, to),
     getLocale() as Promise<Locale>,
   ]);
-  const param = formatMonthParam(month);
   const takings = routes.reduce((sum, r) => sum + r.ticketTotal + r.parcelTotal, 0);
   const tickets = routes.reduce((sum, r) => sum + r.tickets, 0);
 
   return (
     <>
-      <MonthNav month={month} current={current} locale={locale} />
+      {nav}
       {routes.length === 0 && buses.length === 0 ? (
-        <p className="text-muted-foreground">{t("emptyMonth")}</p>
+        <p className="text-muted-foreground">{emptyText}</p>
       ) : (
         <>
           <dl className="num grid grid-cols-2 gap-3 rounded-md border bg-card p-3">
@@ -86,7 +134,7 @@ async function MonthReport({ raw }: { raw?: string }) {
           <section aria-labelledby="by-route" className="grid gap-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="by-route" className="text-lg font-bold">{t("byRoute")}</h2>
-              <CsvLink href={`/reports/export?kind=routes&month=${param}`}>{t("downloadRoutes")}</CsvLink>
+              <CsvLink href={`/reports/export?kind=routes&${exportQuery}`}>{t("downloadRoutes")}</CsvLink>
             </div>
             <RouteCards rows={routes} locale={locale} />
           </section>
@@ -94,7 +142,7 @@ async function MonthReport({ raw }: { raw?: string }) {
           <section aria-labelledby="by-bus" className="grid gap-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="by-bus" className="text-lg font-bold">{t("byBus")}</h2>
-              <CsvLink href={`/reports/export?kind=buses&month=${param}`}>{t("downloadBuses")}</CsvLink>
+              <CsvLink href={`/reports/export?kind=buses&${exportQuery}`}>{t("downloadBuses")}</CsvLink>
             </div>
             <ul className="grid gap-3 md:grid-cols-2">
               {buses.map((b) => (

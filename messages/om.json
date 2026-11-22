@@ -266,7 +266,11 @@
     "csvParcelTotal": "Kaffaltii fe'umsaa (Birr)",
     "csvOnboard": "Maallaqa konkolaataa irratti (Birr)",
     "csvFrom": "Irraa",
-    "csvTo": "Gara"
+    "csvTo": "Gara",
+    "viewWeek": "Guyyaa 7",
+    "emptyWeek": "Guyyoota 7 kana keessa ka'umsi ykn fe'umsi hin jiru.",
+    "previousWeek": "Guyyoota 7 darban",
+    "nextWeek": "Guyyoota 7 itti aanan"
   },
   "tvBoard": {
     "title": "Ka'umsa",

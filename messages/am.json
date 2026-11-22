@@ -266,7 +266,11 @@
     "csvParcelTotal": "የጭነት ክፍያ (ብር)",
     "csvOnboard": "በመኪና ላይ ጥሬ ገንዘብ (ብር)",
     "csvFrom": "ከ",
-    "csvTo": "ወደ"
+    "csvTo": "ወደ",
+    "viewWeek": "7 ቀን",
+    "emptyWeek": "በእነዚህ 7 ቀናት መነሻ ወይም ጭነት የለም።",
+    "previousWeek": "ያለፉት 7 ቀናት",
+    "nextWeek": "የሚቀጥሉት 7 ቀናት"
   },
   "tvBoard": {
     "title": "መነሻዎች",

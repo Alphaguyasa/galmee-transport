@@ -51,6 +51,13 @@ export function parseMonthParam(raw: string | undefined, fallback: EthMonth): Et
   return compareEthMonth(m, fallback) > 0 ? fallback : m;
 }
 
+/** The last day of a 7-day report: a valid YYYY-MM-DD not after today, else today. */
+export function parseWeekEnd(raw: string | undefined | null, today: string): string {
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw) || Number.isNaN(Date.parse(`${raw}T00:00:00Z`))) return today;
+  if (new Date(`${raw}T00:00:00Z`).toISOString().slice(0, 10) !== raw) return today;
+  return raw > today ? today : raw;
+}
+
 /** One CSV cell: quoted when needed, and a leading = + - @ is neutralised so spreadsheets do not run it. */
 export function csvCell(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "";

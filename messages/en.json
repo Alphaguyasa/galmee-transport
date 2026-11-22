@@ -266,7 +266,11 @@
     "csvParcelTotal": "Parcel fees (Birr)",
     "csvOnboard": "Cash on board (Birr)",
     "csvFrom": "From",
-    "csvTo": "To"
+    "csvTo": "To",
+    "viewWeek": "7 days",
+    "emptyWeek": "No departures or parcels in these 7 days.",
+    "previousWeek": "Previous 7 days",
+    "nextWeek": "Next 7 days"
   },
   "tvBoard": {
     "title": "Departures",

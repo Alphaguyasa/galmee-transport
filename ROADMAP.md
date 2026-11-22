@@ -37,7 +37,7 @@ Out of scope: online seat booking for passengers (sales stay at the window), GPS
 - [ ] Customers: list, search by name/phone, detail with balance
 - [x] ~~Items and stock~~ (not used by this product)
 - [ ] Payments and credit: record payment, credit statement
-- [ ] Reports: today / this week / this Ethiopian month; export CSV
+- [x] Reports: today / this week / this Ethiopian month; export CSV
 - [ ] Offline queue for the main money action with sync status indicator
 
 ## M2: Galmee Transport features

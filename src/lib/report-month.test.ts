@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { csvCell, daysInEthMonth, ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, shiftEthMonth, toCsv } from "./report-month";
+import { parseWeekEnd, csvCell, daysInEthMonth, ethMonthOf, ethMonthRange, formatMonthParam, parseMonthParam, shiftEthMonth, toCsv } from "./report-month";
 
 describe("ethMonthRange", () => {
   it("covers Hidar 2019 (10 Nov to 9 Dec 2026)", () => {
@@ -46,5 +46,15 @@ describe("csv", () => {
   });
   it("starts with a byte order mark and uses CRLF", () => {
     expect(toCsv([["ሻሸመኔ", 2], ["a", "b"]])).toBe("﻿ሻሸመኔ,2\r\na,b\r\n");
+  });
+});
+
+describe("parseWeekEnd", () => {
+  it("keeps a past day and refuses future, broken or impossible days", () => {
+    expect(parseWeekEnd("2026-11-15", "2026-11-22")).toBe("2026-11-15");
+    expect(parseWeekEnd("2026-11-30", "2026-11-22")).toBe("2026-11-22");
+    expect(parseWeekEnd("2026-02-30", "2026-11-22")).toBe("2026-11-22");
+    expect(parseWeekEnd("x", "2026-11-22")).toBe("2026-11-22");
+    expect(parseWeekEnd(undefined, "2026-11-22")).toBe("2026-11-22");
   });
 });
