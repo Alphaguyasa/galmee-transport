@@ -12,7 +12,7 @@
 
 - [ ] Offline queue for `tr_sell_ticket` (`client_ref` already idempotent)
 - [ ] Parcel arrival SMS wiring
-- [ ] Route and bus report by Ethiopian month, with CSV export
+- [x] Route and bus report by Ethiopian month, with CSV export
 - [ ] Owner evening Telegram: takings and shorts per bus
 - [ ] Staff invite and per-seller shortage history
 - [x] Departure manifest print (passenger list for the driver and road checks)
