@@ -22,7 +22,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', ua, 'role','authenticated')::text, true);
   insert into public.tr_routes(origin,destination,fare) values ('Shashamane','Hawassa',100) returning id into ra;
   insert into public.tr_vehicles(plate,seats,name) values ('3-AA 1',12,'Bus 1') returning id into va;
-  da := public.tr_schedule_departure(ra, va, now() + interval '1 hour');
+  da := public.tr_schedule_departure(ra, va, now() + interval '10 minutes');
   begin perform public.tr_schedule_departure(ra, va, (select departs_at from public.tr_departures where id=da)); ok := true; exception when others then ok := false; err := sqlerrm; end;
   r := r || 'same bus same time=' || ok || ' err=' || err || ' (expect false, vehicle_busy); ';
   begin perform public.tr_schedule_departure(rb, va, now() + interval '3 hours'); ok := true; exception when others then ok := false; err := sqlerrm; end;
@@ -80,6 +80,21 @@ begin
   r := r || 'seat resold after void ok; ';
   select tickets, ticket_total, seats, departures, parcels, parcel_total into rec from public.tr_route_report(d) where route_id=ra;
   r := r || 'route report tickets=' || rec.tickets || ' total=' || rec.ticket_total || ' seats=' || rec.seats || ' deps=' || rec.departures || ' parcels=' || rec.parcels || ' fee=' || rec.parcel_total || ' (expect 3,300,12,1,1,50); ';
+  select tickets, ticket_total, seats, departures, parcels, parcel_total into rec from public.tr_route_report_range(d - 30, d + 1) where route_id=ra;
+  r := r || 'range route report tickets=' || rec.tickets || ' total=' || rec.ticket_total || ' seats=' || rec.seats || ' deps=' || rec.departures || ' parcels=' || rec.parcels || ' fee=' || rec.parcel_total || ' (expect 3,300,12,1,1,50); ';
+  select tickets, ticket_total, onboard_cash, departures into rec from public.tr_bus_report_range(d - 30, d + 1) where vehicle_id=va;
+  r := r || 'range bus report tickets=' || rec.tickets || ' total=' || rec.ticket_total || ' onboard=' || rec.onboard_cash || ' deps=' || rec.departures || ' (expect 3,300,100,1); ';
+  select count(*) into n from public.tr_bus_report_range(d - 30, d + 1) where vehicle_id=vb; r := r || 'A bus report has B bus=' || n || ' (expect 0); ';
+  begin perform * from public.tr_route_report_range(d, d - 1); ok := true; exception when others then ok := false; err := sqlerrm; end;
+  r := r || 'reversed range=' || ok || ' err=' || err || ' (expect false, bad_range); ';
+  begin perform * from public.tr_bus_report_range(d - 400, d); ok := true; exception when others then ok := false; err := sqlerrm; end;
+  r := r || 'range over a year=' || ok || ' err=' || err || ' (expect false, bad_range); ';
+  perform set_config('request.jwt.claims', json_build_object('sub', uc, 'role','authenticated')::text, true);
+  begin perform * from public.tr_route_report_range(d - 30, d); ok := true; exception when others then ok := false; err := sqlerrm; end;
+  r := r || 'staff range report=' || ok || ' err=' || err || ' (expect false, not_allowed); ';
+  begin perform * from public.tr_bus_report_range(d - 30, d); ok := true; exception when others then ok := false; err := sqlerrm; end;
+  r := r || 'staff bus report=' || ok || ' err=' || err || ' (expect false, not_allowed); ';
+  perform set_config('request.jwt.claims', json_build_object('sub', ua, 'role','authenticated')::text, true);
 
   begin perform public.tr_set_parcel_status(pa,'loaded',db); ok := true; exception when others then ok := false; err := sqlerrm; end;
   r := r || 'load on B departure=' || ok || ' err=' || err || ' (expect false, departure_not_found); ';
@@ -108,6 +123,8 @@ begin
   select count(*) into n from public.tr_parcels; r := r || 'B sees parcels=' || n || ' (expect 0); ';
   select count(*) into n from public.tr_cash_handovers; r := r || 'B sees handovers=' || n || ' (expect 0); ';
   select count(*) into n from public.tr_reconcile(d); r := r || 'B reconcile rows=' || n || ' (expect 0); ';
+  select count(*) into n from public.tr_route_report_range(d - 30, d + 1) where route_id = ra; r := r || 'B range sees A route=' || n || ' (expect 0); ';
+  select count(*) into n from public.tr_bus_report_range(d - 30, d + 1) where vehicle_id = va; r := r || 'B range sees A bus=' || n || ' (expect 0); ';
 
   perform set_config('role','anon', true);
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -115,6 +132,7 @@ begin
   begin select count(*) into n from public.tr_routes; exception when others then n := -1; end; r := r || 'anon routes=' || n || ' (expect 0 or -1); ';
   begin perform public.tr_sell_ticket(da,9); ok := true; exception when others then ok := false; end; r := r || 'anon sells=' || ok || ' (expect false); ';
   begin perform * from public.tr_reconcile(d); ok := true; exception when others then ok := false; end; r := r || 'anon reconcile=' || ok || ' (expect false); ';
+  begin perform * from public.tr_bus_report_range(d - 30, d); ok := true; exception when others then ok := false; end; r := r || 'anon bus report=' || ok || ' (expect false); ';
 
   raise exception 'RESULT: %', r;
 end $$;

@@ -253,9 +253,35 @@ export type RouteReportRow = { routeId: string; origin: string; destination: str
 export async function routeReport(day: string): Promise<RouteReportRow[]> {
   const supabase = await db();
   const { data } = await supabase.rpc("tr_route_report", { p_day: day });
+  return toRouteRows(data);
+}
+
+function toRouteRows(data: unknown): RouteReportRow[] {
   type Row = { route_id: string; origin: string; destination: string; departures: number; seats: number; tickets: number; ticket_total: number; parcels: number; parcel_total: number };
   return ((data ?? []) as Row[]).map((r) => ({
     routeId: r.route_id, origin: r.origin, destination: r.destination, departures: Number(r.departures), seats: Number(r.seats),
     tickets: Number(r.tickets), ticketTotal: Number(r.ticket_total), parcels: Number(r.parcels), parcelTotal: Number(r.parcel_total),
+  }));
+}
+
+/** Per-route totals for an inclusive date range (managers only; the RPC refuses staff). */
+export async function routeReportRange(from: string, to: string): Promise<RouteReportRow[]> {
+  const supabase = await db();
+  const { data, error } = await supabase.rpc("tr_route_report_range", { p_from: from, p_to: to });
+  if (error) throw new Error(error.message);
+  return toRouteRows(data);
+}
+
+export type BusReportRow = { vehicleId: string; plate: string; name: string | null; departures: number; seats: number; tickets: number; ticketTotal: number; onboardCash: number };
+
+/** Per-bus totals for an inclusive date range, busiest first. */
+export async function busReportRange(from: string, to: string): Promise<BusReportRow[]> {
+  const supabase = await db();
+  const { data, error } = await supabase.rpc("tr_bus_report_range", { p_from: from, p_to: to });
+  if (error) throw new Error(error.message);
+  type Row = { vehicle_id: string; plate: string; name: string | null; departures: number; seats: number; tickets: number; ticket_total: number; onboard_cash: number };
+  return ((data ?? []) as Row[]).map((r) => ({
+    vehicleId: r.vehicle_id, plate: r.plate, name: r.name, departures: Number(r.departures), seats: Number(r.seats),
+    tickets: Number(r.tickets), ticketTotal: Number(r.ticket_total), onboardCash: Number(r.onboard_cash),
   }));
 }
